@@ -9,11 +9,12 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var wakeUp = defaultWakeTime
-    @State private var sleepAmt = 8.0
+    @State private var sleepAmt = 8
     @State private var coffeeAmt = 1
     @State private var alertTitle = ""
     @State private var alertMsg = ""
     @State private var showAlert = false
+    let hours = [4,5,6,7,8,9,10,11,12]
     static var defaultWakeTime : Date{
         var components = DateComponents()
         components.hour = 8
@@ -70,14 +71,21 @@ NavigationView{
             VStack(alignment: .leading, spacing: 20){
                 Text("Desired Amount of sleep")
                     .font(.headline)
-                Stepper("\(sleepAmt.formatted()) hours", value: $sleepAmt,in:  4...12,step: 0.25)
+                
+//                Stepper("\(sleepAmt.formatted()) hours", value: $sleepAmt,in:  4...12,step: 0.25)
+                
+                Picker("amount of sleep",selection: $sleepAmt){
+                    ForEach(hours,id: \.self){
+                        Text("\($0)")
+                    }
+                }.pickerStyle(.segmented)
             }
         }
         Section{
             VStack(alignment: .leading, spacing: 20){
                 Text("Daily coffee intake")
                     .font(.headline)
-                Stepper(coffeeAmt == 1 ? "1 cup" : "\(coffeeAmt) cups", value: $coffeeAmt,in:  1...20)
+                Stepper(coffeeAmt == 1 ? "1 cup" : coffeeAmt == 0 ? "0 cup" : "\(coffeeAmt) cups", value: $coffeeAmt,in:  0...20)
             }
             
         }
@@ -88,11 +96,19 @@ NavigationView{
                         .font(.headline)
                         .frame(maxWidth: .infinity, alignment: .center)
                     
-                    Text(calculatedValue)
-                        .font(.title)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .foregroundColor(.gray)
-                        .bold()
+                    HStack(spacing: 8){
+                        Button{
+                            calculateBedTime()
+                        }
+                        label : {
+                        
+                            Text(calculatedValue)
+                                .font(.title)
+                                .foregroundColor(.gray)
+                                .bold()
+                        }
+                        Text("Per Day")
+                    }
                 }
                 
             }
@@ -100,9 +116,9 @@ NavigationView{
         
     }
     .navigationTitle("Better Rest")
-                .toolbar{
-                    Button("Calculate", action: calculateBedTime)
-                }
+//                .toolbar{
+//                    Button("Calculate", action: calculateBedTime)
+//                }
                 .alert(alertTitle,isPresented: $showAlert){
                     Button("Ok"){}
                 } message: {
